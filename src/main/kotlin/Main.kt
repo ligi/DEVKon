@@ -29,7 +29,7 @@ fun main() {
                 execute(edition, "ipfs-cluster-ctl pin add --name ${edition.name}:${session.name} $hash")
             } else {
                 println("Downloading $session")
-                execute(edition, "yt-dlp -f mp4 -o ${session.nameWithoutExtension}.%(ext)s ${obj["sources_youtubeId"]}")
+                execute(edition, "yt-dlp -f mp4 -o ${session.nameWithoutExtension}.%(ext)s -- ${obj["sources_youtubeId"]}")
             }
         }
     }
