@@ -18,7 +18,7 @@ fun main() {
 
                     if (oldHash == null) {
                         println("initial hash")
-                        val newJson = session.readText().replace("\"sources_youtubeId\"","\"sources_ipfsHash\": \"$hash\",\n  \"sources_youtubeId\"")
+                        val newJson = session.readText().replace("\"sources_youtubeId\"", "\"sources_ipfsHash\": \"$hash\",\n  \"sources_youtubeId\"")
                         session.writeText(newJson)
                     } else {
                         println("hash changed")
@@ -27,6 +27,15 @@ fun main() {
                     }
                 }
                 execute(edition, "ipfs-cluster-ctl pin add --name ${edition.name}:${session.name} $hash")
+
+                val wavFile = File(edition, mp4file.nameWithoutExtension + ".wav")
+                if (!wavFile.exists()) {
+                    execute(edition, "ffmpeg -i ${mp4file.name} -ar 16000 -ac 1 -c:a pcm_s16le $wavFile")
+                }
+                val transcriptFile = File(edition, mp4file.nameWithoutExtension + ".transcript")
+                if (!transcriptFile.exists()) {
+                    execute(File("/home/devops/whisper.cpp"),"./main -f ${wavFile.absoluteFile} -of ${transcriptFile.absoluteFile} -oj")
+                }
             } else {
                 println("Downloading $session")
                 execute(edition, "yt-dlp -f mp4 -o ${session.nameWithoutExtension}.%(ext)s -- ${obj["sources_youtubeId"]}")
